@@ -31,7 +31,7 @@ def get_json():
     return json_content
 
 
-def get_entries(reddit, last_id):
+def get_entries(reddit, last_saved_id):
     """Return a list of choosen attributes from saved comments/posts.
 
     Args:
@@ -44,7 +44,7 @@ def get_entries(reddit, last_id):
 
     new_entry_count = 0
     new_data = []
-    for item in reddit.user.me().saved(limit=None, params={"after": last_id}):
+    for item in reddit.user.me().saved(limit=None, params={"before": last_saved_id}):
         data = {}
         # pprint(vars(item))
         data["id"] = item.name
@@ -92,13 +92,13 @@ def main():
     print(f"Read-only: {reddit.read_only}")
     
     json_content = get_json()
-    last_id = json_content[-1]["id"] if json_content else None
+    last_saved_id = json_content[0]["id"] if json_content else None
     entries_count = len(json_content) if json_content else 0
 
     print(f"Nombre d'entrées: {entries_count}")
 
-    new_data = get_entries(reddit, last_id)
-    if new_data: save_json(json_content + new_data)
+    new_data = get_entries(reddit, last_saved_id)
+    if new_data: save_json(new_data + json_content)
 
 if __name__ == "__main__":
     main()
