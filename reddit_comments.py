@@ -45,28 +45,44 @@ def get_entries(reddit, last_saved_id):
     new_entry_count = 0
     new_data = []
     for item in reddit.user.me().saved(limit=None, params={"before": last_saved_id}):
-        data = {}
-        # pprint(vars(item))
-        data["id"] = item.name
-        if isinstance(item, praw.models.Submission):
-            # Posts item.name is t3_<id>
-            data["permalink"] = item.permalink
-            data["title"] = item.title
-            if item.is_self:
-                data["content"] = item.selftext
-            else:
-                data["content"] = item.url
-        else:
-            # Comments item.name is t1_<id>
-            # print("post_author :", item.author)
-            # item.id and comment's author is in the permalink
-            data["permalink"] = item.permalink  # https://www.reddit.com<permalink>
-            data["content"] = item.body
+        data = handle_saved(item)
         new_data.append(data)
         new_entry_count += 1
     print(f"Nombre d'entrées ajoutées: {new_entry_count}")
 
     return new_data
+
+
+def handle_saved(item):
+    """Retrieves interesting attributes depending on whether the entry is a comment or a post.
+
+    Args:
+        item (praw.models.reddit.submission.Submission or 
+        praw.models.reddit.comment.Comment ): Comment or Post Object,
+
+    Returns:
+        data (dict): Dict of attributes,
+    """
+
+    data = {}
+    # pprint(vars(item))
+    data["id"] = item.name
+    if isinstance(item, praw.models.Submission):
+        # Posts item.name is t3_<id>
+        data["permalink"] = item.permalink
+        data["title"] = item.title
+        if item.is_self:
+            data["content"] = item.selftext
+        else:
+            data["content"] = item.url
+    else:
+        # Comments item.name is t1_<id>
+        # print("post_author :", item.author)
+        # item.id and comment's author is in the permalink
+        data["permalink"] = item.permalink  # https://www.reddit.com<permalink>
+        data["content"] = item.body
+
+    return data
 
 
 def save_json(all_data):
