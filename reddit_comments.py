@@ -44,7 +44,7 @@ def get_entries(reddit, last_saved_id):
 
     new_entry_count = 0
     new_data = []
-    for item in reddit.user.me().saved(limit=None, params={"before": last_saved_id}):
+    for item in reddit.user.me().saved(limit=None, params={"before": last_saved_id}):  # ISSUE: limited to 100 entries with limit=None
         data = handle_saved(item)
         new_data.append(data)
         new_entry_count += 1
